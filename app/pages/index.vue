@@ -1,5 +1,8 @@
+<script setup lang="ts">
+
+</script>
+
 <template>
-    <div>
-        <h1>Welcome to Nuxt 3</h1>
-    </div>
+    <h1>HP</h1>
+    <MyButton> Click or Hover me </MyButton>
 </template>
