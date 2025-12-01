@@ -2,6 +2,8 @@
  definePageMeta({
      layout: 'aside'
  })
+
+ export default {}
 </script>
 
 <template>
