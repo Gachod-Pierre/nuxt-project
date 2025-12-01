@@ -7,21 +7,23 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@nuxt/eslint": "^1.11.0",
     "@nuxt/image": "^2.0.0",
     "@nuxt/test-utils": "^3.20.1",
-    "@nuxtjs/storybook": "^9.0.1",
+    "@stylistic/eslint-plugin": "^5.6.1",
     "eslint": "^9.39.1",
     "nuxt": "^4.2.1",
-    "storybook": "~9.0.5",
     "vue": "^3.5.25",
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
-    "saas": "^1.0.0",
-    "sass": "^1.94.2"
+    "sass": "^1.94.2",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.1.5"
   }
 }

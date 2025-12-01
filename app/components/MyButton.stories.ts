@@ -7,12 +7,12 @@ import MyButton from './MyButton.vue'
 const meta = {
   title: 'Components/Button',
   component: MyButton,
-  render: (args: any) => ({
+  render: (args) => ({
     components: { MyButton },
-    setup() {
+    setup () {
       return { args }
     },
-    template: '<MyButton v-bind="args">Click me</MyButton>',
+    template: '<MyButton v-bind="args">Click me</MyButton>'
   }),
   // This component will have an automatically generated docsPage entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ['autodocs'],
@@ -22,9 +22,9 @@ const meta = {
       options: ['giant', 'large', 'medium', 'small', 'tiny'],
       description: 'Taille visuelle du bouton',
       table: {
-        type: { summary: "'giant' | 'large' | 'medium' | 'small' | 'tiny'" },
-        defaultValue: { summary: 'medium' },
-      },
+        type: { summary: '\'giant\' | \'large\' | \'medium\' | \'small\' | \'tiny\'' },
+        defaultValue: { summary: 'medium' }
+      }
     },
 
     variant: {
@@ -32,9 +32,9 @@ const meta = {
       options: ['default', 'outline'],
       description: 'Style visuel du bouton',
       table: {
-        type: { summary: "'default' | 'outline'" },
-        defaultValue: { summary: 'default' },
-      },
+        type: { summary: '\'default\' | \'outline\'' },
+        defaultValue: { summary: 'default' }
+      }
     },
 
     disabled: {
@@ -42,8 +42,8 @@ const meta = {
       description: 'Désactive le bouton',
       table: {
         type: { summary: 'boolean' },
-        defaultValue: { summary: false },
-      },
+        defaultValue: { summary: false }
+      }
     },
 
     href: {
@@ -51,8 +51,8 @@ const meta = {
       description: 'Transforme le bouton en lien <a>',
       table: {
         type: { summary: 'string | undefined' },
-        defaultValue: { summary: 'undefined' },
-      },
+        defaultValue: { summary: 'undefined' }
+      }
     },
 
     // EVENT
@@ -60,10 +60,10 @@ const meta = {
       action: 'clicked',
       description: 'Événement émis lors du clic',
       table: {
-        category: 'Events',
-      },
-    },
-  },
+        category: 'Events'
+      }
+    }
+  }
 } satisfies Meta<typeof MyButton>
 
 export default meta
@@ -77,19 +77,19 @@ export const Default: Story = {}
 
 export const Outline: Story = {
   args: {
-    variant: 'outline',
-  },
+    variant: 'outline'
+  }
 }
 
 export const Small: Story = {
   args: {
-    size: 'small',
-  },
+    size: 'small'
+  }
 }
 
 export const SmallOutline: Story = {
   args: {
     size: 'small',
-    variant: 'outline',
-  },
+    variant: 'outline'
+  }
 }
