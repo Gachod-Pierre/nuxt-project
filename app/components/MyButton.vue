@@ -15,7 +15,7 @@ const sizeClass = computed(() => {
     large: '-large',
     medium: '-medium',
     small: '-small',
-    tiny: '-tiny',
+    tiny: '-tiny'
   }[props.size ?? 'medium']
 })
 
@@ -23,10 +23,10 @@ const variantClass = computed(() => {
   return `-${props.variant ?? 'default'}`
 })
 
-const emit = defineEmits(['clickAndHover']);
+const emit = defineEmits(['clickAndHover'])
 
-function handleClickAndHover() {
-  emit('clickAndHover');
+function handleClickAndHover () {
+  emit('clickAndHover')
 }
 
 </script>
