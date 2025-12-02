@@ -21,12 +21,12 @@ if (error && error.value) throw new Error("Failed to fetch recipes");
 const page = ref(2)
 const perPage = 2
 
+const search = ref<string>("")
 const filters = ref<Cuisine["name"][]>([]);
 
 function onCheckboxInput($event: InputEvent) {
   const target = $event.target;
   if (!(target instanceof HTMLInputElement)) return;
-  page.value = 1
   filters.value = target.checked
     ? [...filters.value, target.value]
     : filters.value.filter((f: string) => f !== target.value);
@@ -38,10 +38,30 @@ function onPageClick(n: number) {
 }
 
 const filteredRecipes = computed<Recipe[]>(() => {
-  if (!recipes.value) return []
-  if (!filters.value.length) return recipes.value
-  return recipes.value.filter(recipe => filters.value.includes(recipe.cuisine_name))
-});   
+  if (!recipes.value) return [];
+
+  let result = recipes.value;
+
+  if (search.value.trim().length > 0) {
+    const keyword = search.value.toLowerCase().trim();
+    result = result.filter(recipe =>
+      recipe.title.toLowerCase().includes(keyword)
+    );
+  }
+
+  if (filters.value.length > 0) {
+    result = result.filter(recipe =>
+      filters.value.includes(recipe.cuisine_name)
+    );
+  }
+
+  return result;
+});
+
+watch([filters, search], () => {
+  page.value = 1;
+});
+
 
 const displayedRecipes = computed<Recipe[]>(() => {
   const start = (page.value - 1) * perPage
@@ -59,6 +79,9 @@ const totalPages = computed(() => {
 
     <!-- FILTRES -->
     <div class="recipes-filters">
+      <input v-model="search" type="text">
+      <br>
+      search : {{ search }}
       <h2 class="recipes-filters__title">Active filters: {{ filters }}</h2>
       <br>
       pages : {{ page }} / {{ totalPages }}
