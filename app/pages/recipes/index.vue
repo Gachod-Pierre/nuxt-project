@@ -1,78 +1,80 @@
 <script setup lang="ts">
-const config = useRuntimeConfig();
+const config = useRuntimeConfig()
 
 const [{ data: recipes, error }, { data: cuisines }] = await Promise.all([
-  useAsyncData("recipes", async () => {
+  useAsyncData('recipes', async () => {
     const { data } = await $fetch<ApiResponse<Recipe[]>>(
       `${config.public.apiUrl}/recipes`
-    );
+    )
     return data
   }),
-  useAsyncData("cuisines", async () => {
+  useAsyncData('cuisines', async () => {
     const { data } = await $fetch<ApiResponse<Cuisine[]>>(
       `${config.public.apiUrl}/cuisines`
-    );
+    )
     return data
   })
-]);
+])
 
-console.log(error);
-if (error && error.value) throw new Error("Failed to fetch recipes");
+// eslint-disable-next-line no-console
+console.log(error)
+if (error && error.value) throw new Error('Failed to fetch recipes')
 
 const page = ref(2)
 const perPage = 2
 
-const search = ref<string>("")
-const filters = ref<Cuisine["name"][]>([]);
+const search = ref<string>('')
+const filters = ref<Cuisine['name'][]>([])
 
-function onCheckboxInput($event: InputEvent) {
-  const target = $event.target;
-  if (!(target instanceof HTMLInputElement)) return;
+function onCheckboxInput ($event: InputEvent) {
+  const target = $event.target
+  if (!(target instanceof HTMLInputElement)) return
   filters.value = target.checked
     ? [...filters.value, target.value]
-    : filters.value.filter((f: string) => f !== target.value);
-  console.log(filters.value);
+    : filters.value.filter((f: string) => f !== target.value)
+  // eslint-disable-next-line no-console
+  console.log(filters.value)
 }
 
-function onPageClick(n: number) {
+function onPageClick (n: number) {
   page.value = n
 }
 
 const filteredRecipes = computed<Recipe[]>(() => {
-  if (!recipes.value) return [];
+  if (!recipes.value) return []
 
-  let result = recipes.value;
+  let result = recipes.value
 
   if (search.value.trim().length > 0) {
-    const keyword = search.value.toLowerCase().trim();
+    const keyword = search.value.toLowerCase().trim()
     result = result.filter(recipe =>
       recipe.title.toLowerCase().includes(keyword)
-    );
+    )
   }
 
   if (filters.value.length > 0) {
     result = result.filter(recipe =>
       filters.value.includes(recipe.cuisine_name)
-    );
+    )
   }
 
-  return result;
-});
+  return result
+})
 
 watch([filters, search], () => {
-  page.value = 1;
-});
+  page.value = 1
+})
 
 
 const displayedRecipes = computed<Recipe[]>(() => {
   const start = (page.value - 1) * perPage
   const end = start + perPage
   return filteredRecipes.value.slice(start, end)
-});
+})
 
 const totalPages = computed(() => {
   return Math.ceil(filteredRecipes.value.length / perPage)
-});
+})
 </script>
 
 <template>

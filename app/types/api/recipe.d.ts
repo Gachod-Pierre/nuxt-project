@@ -7,22 +7,22 @@ type Recipe = {
   goal_name: string
   diet_name: string
   allergy_name: string[]
-};
+}
 
 type RecipeIngredients = {
   ingredient_id: number
   quantity: string
   unit: string
   name: string
-};
+}
 
 type RecipeInstructions = {
   instruction_id: number
   step_number: number
   description: string
-};
+}
 
 type FullRecipe = Recipe & {
   ingredients: RecipeIngredients[]
   instructions: RecipeInstructions[]
-};
+}

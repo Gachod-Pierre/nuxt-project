@@ -18,8 +18,8 @@ const props = withDefaults(
     size: 'medium',
     label: '',
     helperText: '',
-    type: 'text',
-  },
+    type: 'text'
+  }
 )
 
 const model = defineModel({ type: String, default: '' })

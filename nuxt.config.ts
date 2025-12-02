@@ -7,12 +7,12 @@ export default defineNuxtConfig({
     { path: '~/components', pathPrefix: false, extensions: ['vue'] }
   ],
   typescript: {
-    typeCheck: true,
+    typeCheck: true
   },
   runtimeConfig: {
     public: {
-      apiUrl: "",
-    },
+      apiUrl: ''
+    }
   },
   vite: {
     css: {
@@ -27,5 +27,5 @@ export default defineNuxtConfig({
       }
     }
   },
-  modules: ["@nuxt/eslint", "@nuxt/image", "@nuxt/test-utils"],
-});
+  modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/test-utils']
+})
