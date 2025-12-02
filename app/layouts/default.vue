@@ -1,5 +1,5 @@
 <template>
-    <main class="ly-default">
-        <slot />
-    </main>
+  <main class="ly-default">
+    <slot />
+  </main>
 </template>
