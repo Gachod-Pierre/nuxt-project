@@ -1,19 +1,20 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
 
-const { data: recipes, error } = useAsyncData("recipes", async () => {
-  const { data } = await $fetch<ApiResponse<Recipe[]>>(
-    `${config.public.apiUrl}/recipes`
-  );
-  return data
-});
-
-const { data: cuisines } = useAsyncData("cuisines", async () => {
-  const { data } = await $fetch<ApiResponse<Cuisine[]>>(
-    `${config.public.apiUrl}/cuisines`
-  );
-  return data
-});
+const [{ data: recipes, error }, { data: cuisines }] = await Promise.all([
+  useAsyncData("recipes", async () => {
+    const { data } = await $fetch<ApiResponse<Recipe[]>>(
+      `${config.public.apiUrl}/recipes`
+    );
+    return data
+  }),
+  useAsyncData("cuisines", async () => {
+    const { data } = await $fetch<ApiResponse<Cuisine[]>>(
+      `${config.public.apiUrl}/cuisines`
+    );
+    return data
+  })
+]);
 
 console.log(error);
 if (error && error.value) throw new Error("Failed to fetch recipes");
