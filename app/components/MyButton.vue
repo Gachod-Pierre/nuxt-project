@@ -48,6 +48,7 @@ function handleClickAndHover () {
 <style scoped lang="scss">
 .button {
   display: inline-flex;
+  width: auto;
   align-items: center;
   justify-content: center;
   font-weight: 600;
