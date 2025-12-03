@@ -25,33 +25,41 @@ const errorMessage = ref('')
    API DATA
 ======================== */
 
-const { data: cuisines } = await useAsyncData('cuisines', async () => {
-  const { data } = await $fetch<ApiResponse<Cuisine[]>>(
-    `${config.public.apiUrl}/cuisines`
-  )
-  return data
-})
+const [
+  { data: cuisines },
+  { data: goals },
+  { data: diets },
+  { data: allergies }
+] = await Promise.all([
+  useAsyncData('cuisines', async () => {
+    const { data } = await $fetch<ApiResponse<Cuisine[]>>(
+      `${config.public.apiUrl}/cuisines`
+    )
+    return data
+  }),
 
-const { data: goals } = await useAsyncData('goals', async () => {
-  const { data } = await $fetch<ApiResponse<Goal[]>>(
-    `${config.public.apiUrl}/goals`
-  )
-  return data
-})
+  useAsyncData('goals', async () => {
+    const { data } = await $fetch<ApiResponse<Goal[]>>(
+      `${config.public.apiUrl}/goals`
+    )
+    return data
+  }),
 
-const { data: diets } = await useAsyncData('dietaryInformation', async () => {
-  const { data } = await $fetch<ApiResponse<Diet[]>>(
-    `${config.public.apiUrl}/dietaryInformations`
-  )
-  return data
-})
+  useAsyncData('dietaryInformation', async () => {
+    const { data } = await $fetch<ApiResponse<Diet[]>>(
+      `${config.public.apiUrl}/dietaryInformations`
+    )
+    return data
+  }),
 
-const { data: allergies } = await useAsyncData('allergiesInformation', async () => {
-  const { data } = await $fetch<ApiResponse<Allergy[]>>(
-    `${config.public.apiUrl}/allergiesInformations`
-  )
-  return data
-})
+  useAsyncData('allergiesInformation', async () => {
+    const { data } = await $fetch<ApiResponse<Allergy[]>>(
+      `${config.public.apiUrl}/allergiesInformations`
+    )
+    return data
+  })
+])
+
 
 /* ========================
    SUBMIT FORM
