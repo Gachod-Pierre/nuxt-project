@@ -26,22 +26,36 @@ const model = defineModel({ type: String, default: '' })
 </script>
 
 <template>
-  <div :class="['ui-input', `-${props.color}`, `-${props.size}`, `-${props.variant}`]">
-    <label v-if="props.label">{{ props.label }}</label>
-    <input v-model="model" :placeholder="props.placeholder" :disabled="props.disabled" :type="props.type">
-    <span v-if="props.helperText">{{ props.helperText }}</span>
+  <div :class="['ui-input', `ui-input--${props.color}`, `ui-input--${props.size}`, `ui-input--${props.variant}`]">
+
+    <label v-if="props.label" class="ui-input__label">
+      {{ props.label }}
+    </label>
+
+    <input
+      v-model="model"
+      class="ui-input__field"
+      :placeholder="props.placeholder"
+      :disabled="props.disabled"
+      :type="props.type"
+    >
+
+    <span v-if="props.helperText" class="ui-input__helper">
+      {{ props.helperText }}
+    </span>
+
   </div>
 </template>
 
 <style lang="scss">
 .ui-input {
-  /* Couleurs locales */
+  /* Local color variables */
   --input-bg-color: #f9f9f9;
   --input-text-color: #333;
   --input-border-color: #d1d1d1;
   --input-helper-text-color: #777;
 
-  /* Tailles */
+  /* Sizes */
   --input-padding-x: 12px;
   --input-padding-y: 8px;
   --input-border-radius: 8px;
@@ -50,13 +64,15 @@ const model = defineModel({ type: String, default: '' })
   display: flex;
   flex-direction: column;
 
-  > label {
+  /* LABEL */
+  &__label {
     font-size: 16px;
     font-weight: 500;
     margin-bottom: 8px;
   }
 
-  > input {
+  /* INPUT FIELD */
+  &__field {
     background-color: var(--input-bg-color);
     color: var(--input-text-color);
     border: 1px solid var(--input-border-color);
@@ -89,17 +105,18 @@ const model = defineModel({ type: String, default: '' })
     }
   }
 
-  > span {
+  /* HELPER TEXT */
+  &__helper {
     margin-top: 4px;
     font-size: 13px;
     color: var(--input-helper-text-color);
   }
 
-  /* OUTLINE */
-  &.-outline {
+  /* OUTLINE VARIANT */
+  &--outline {
     --input-bg-color: transparent;
 
-    > input {
+    .ui-input__field {
       border-width: 2px;
 
       &:hover {
@@ -116,41 +133,38 @@ const model = defineModel({ type: String, default: '' })
     }
   }
 
-  /* SUCCESS */
-  &.-success {
+  /* COLORS */
+  &--success {
     --input-bg-color: #e9f8ed;
     --input-border-color: #3bbd5c;
     --input-helper-text-color: #3bbd5c;
   }
 
-  /* INFO */
-  &.-info {
+  &--info {
     --input-bg-color: #e7f1ff;
     --input-border-color: #3a78ff;
     --input-helper-text-color: #3a78ff;
   }
 
-  /* WARNING */
-  &.-warning {
+  &--warning {
     --input-bg-color: #fff4d6;
     --input-border-color: #e6a700;
     --input-helper-text-color: #e6a700;
   }
 
-  /* ERROR */
-  &.-error {
+  &--error {
     --input-bg-color: #ffe5e5;
     --input-border-color: #e64545;
     --input-helper-text-color: #e64545;
   }
 
-  /* LARGE SIZE */
-  &.-large {
+  /* SIZE LARGE */
+  &--large {
     --input-padding-x: 16px;
     --input-padding-y: 12px;
     --input-font-size: 16px;
 
-    > label {
+    .ui-input__label {
       font-size: 18px;
     }
   }
