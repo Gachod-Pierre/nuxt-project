@@ -23,7 +23,7 @@ function toggleMenu () {
       </nav>
 
       <div class="header__actions">
-        <NuxtLink to="/account" class="header__user">
+        <NuxtLink to="/login" class="header__user">
           <img src="/icons/user.png" alt="Mon compte">
         </NuxtLink>
       </div>
