@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { FetchError } from 'ofetch'
 
 const config = useRuntimeConfig()
@@ -60,12 +60,34 @@ const [
   })
 ])
 
+/* ========================
+   VALIDATION
+======================== */
+
+const fieldErrors = computed(() => ({
+  title: !title.value,
+  description: !description.value,
+  cuisine: !cuisineId.value,
+  goal: !goalId.value
+}))
+
+const isFormValid = computed(() => {
+  return !fieldErrors.value.title &&
+         !fieldErrors.value.description &&
+         !fieldErrors.value.cuisine &&
+         !fieldErrors.value.goal
+})
 
 /* ========================
    SUBMIT FORM
 ======================== */
 
 async function handleSubmit () {
+  if (!isFormValid.value) {
+    errorMessage.value = 'Veuillez remplir tous les champs obligatoires.'
+    return
+  }
+
   loading.value = true
   successMessage.value = ''
   errorMessage.value = ''
@@ -89,6 +111,8 @@ async function handleSubmit () {
 
     successMessage.value = 'Recette créée avec succès !'
     resetForm()
+
+    navigateTo('/')
 
   } catch (error: unknown) {
     const err = error as FetchError<{ message?: string }>
@@ -115,84 +139,111 @@ function resetForm () {
 
     <form class="recipes-form__form" @submit.prevent="handleSubmit">
 
-      <!-- GROUPE INPUT -->
+      <!-- Titre -->
       <div class="recipes-form__group">
         <MyInput
           v-model="title"
           label="Titre *"
           placeholder="Titre de la recette"
+          :color="fieldErrors.title ? 'error' : 'default'"
           required
-          :disabled="loading"
         />
       </div>
 
+      <!-- Description -->
       <div class="recipes-form__group">
         <MyInput
           v-model="description"
           label="Description *"
-          placeholder="Décrit ta recette..."
+          placeholder="Décris ta recette..."
+          :color="fieldErrors.description ? 'error' : 'default'"
           required
-          :disabled="loading"
         />
       </div>
 
+      <!-- Image -->
       <div class="recipes-form__group">
         <MyInput
           v-model="imageUrl"
           label="Image URL"
           placeholder="ex: poulet.jpg"
-          :disabled="loading"
         />
       </div>
 
-      <!-- CUISINE -->
+      <!-- Cuisine -->
       <div class="recipes-form__group">
         <label class="recipes-form__label">Cuisine *</label>
-        <select v-model="cuisineId" class="recipes-form__select" required>
+        <select
+          v-model="cuisineId"
+          class="recipes-form__select"
+          :class="{ 'recipes-form__select--error': fieldErrors.cuisine }"
+          required
+        >
           <option disabled value="">Sélectionner une cuisine</option>
-          <option v-for="c in cuisines" :key="c.cuisine_id" :value="c.cuisine_id">
+          <option
+            v-for="c in cuisines"
+            :key="c.cuisine_id"
+            :value="c.cuisine_id"
+          >
             {{ c.name }}
           </option>
         </select>
       </div>
 
-      <!-- OBJECTIFS -->
+      <!-- Objectif -->
       <div class="recipes-form__group">
         <label class="recipes-form__label">Objectif *</label>
-        <select v-model="goalId" class="recipes-form__select" required>
+        <select
+          v-model="goalId"
+          class="recipes-form__select"
+          :class="{ 'recipes-form__select--error': fieldErrors.goal }"
+          required
+        >
           <option disabled value="">Sélectionner un objectif</option>
-          <option v-for="g in goals" :key="g.goal_id" :value="g.goal_id">
+          <option
+            v-for="g in goals"
+            :key="g.goal_id"
+            :value="g.goal_id"
+          >
             {{ g.name }}
           </option>
         </select>
       </div>
 
-      <!-- DIET -->
+      <!-- Régime -->
       <div class="recipes-form__group">
         <label class="recipes-form__label">Régime</label>
         <select v-model="dietId" class="recipes-form__select">
           <option value="">Aucun</option>
-          <option v-for="d in diets" :key="d.diet_id" :value="d.diet_id">
+          <option 
+            v-for="d in diets"
+            :key="d.diet_id"
+            :value="d.diet_id"
+          >
             {{ d.name }}
           </option>
         </select>
       </div>
 
-      <!-- ALLERGIES -->
+      <!-- Allergies -->
       <div class="recipes-form__group">
         <label class="recipes-form__label">Allergie</label>
         <select v-model="allergyId" class="recipes-form__select">
           <option value="">Aucune</option>
-          <option v-for="a in allergies" :key="a.allergy_id" :value="a.allergy_id">
+          <option 
+            v-for="a in allergies"
+            :key="a.allergy_id"
+            :value="a.allergy_id"
+          >
             {{ a.name }}
           </option>
         </select>
       </div>
 
-      <!-- SUBMIT -->
+      <!-- Submit -->
       <MyButton
         class="recipes-form__button"
-        :disabled="loading"
+        :disabled="loading || !isFormValid"
         size="medium"
       >
         {{ loading ? 'Création...' : 'Créer la recette' }}
@@ -202,6 +253,7 @@ function resetForm () {
 
     <p v-if="successMessage" class="recipes-form__success">{{ successMessage }}</p>
     <p v-if="errorMessage" class="recipes-form__error">{{ errorMessage }}</p>
+
   </section>
 </template>
 
@@ -241,6 +293,11 @@ function resetForm () {
     border-radius: 6px;
     font-size: 0.95rem;
     background: white;
+
+    &--error {
+      border-color: #d0342c;
+      background: #ffeaea;
+    }
   }
 
   &__button {
