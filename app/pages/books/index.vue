@@ -6,7 +6,7 @@ const POSTS_QUERY = groq`*[
   && defined(slug.current)
 ]|order(publishedAt desc)[0...12]{_id, title, slug, publishedAt}`;
 
-const { data: posts } = await useSanityQuery<SanityDocument[]>(POSTS_QUERY);
+const { data: posts } = await useLazySanityQuery<SanityDocument[]>(POSTS_QUERY);
 </script>
 
 <template>
