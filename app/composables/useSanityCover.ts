@@ -1,6 +1,6 @@
 // app/composables/useSanityImageUrl.ts
 import { createImageUrlBuilder } from '@sanity/image-url'
-import type { SanityImageSource } from 'sanity'
+import type { SanityDocument } from '@sanity/client'
 
 export const useSanityImageUrl = () => {
   const sanity = useSanity()
@@ -13,7 +13,7 @@ export const useSanityImageUrl = () => {
    * @returns L'URL de l'image ou null si les configurations manquent
    */
   const urlFor = (
-    source: SanityImageSource | null | undefined,
+    source: SanityDocument | null | undefined,
     options?: {
       width?: number;
       height?: number;
