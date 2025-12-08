@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import type { SanityDocument } from "@sanity/client";
+import type { SanityDocument } from '@sanity/client'
+import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url'
 
 const POSTS_QUERY = groq`*[
   _type == "book"
   && defined(slug.current)
-]|order(publishedAt desc)[0...12]{_id, title, slug, publishedAt}`;
+]|order(publishedAt desc)[0...12]{_id, title, slug, cover, publishedAt}`
 
-const { data: posts } = await useLazySanityQuery<SanityDocument[]>(POSTS_QUERY);
+const { data: posts } = await useLazySanityQuery<SanityDocument[]>(POSTS_QUERY)
+
+const { projectId, dataset } = useSanity().client.config()
+const urlFor = (source: SanityImageSource) =>
+  projectId && dataset
+    ? createImageUrlBuilder({ projectId, dataset }).image(source)
+    : null
 </script>
 
 <template>
@@ -14,7 +21,15 @@ const { data: posts } = await useLazySanityQuery<SanityDocument[]>(POSTS_QUERY);
     <h1 class="text-4xl font-bold mb-8">Posts</h1>
     <ul class="flex flex-col gap-y-4">
       <li v-for="post in posts" :key="post._id" class="hover:underline">
-        <nuxt-link :to="`/${post.slug.current}`">
+        <nuxt-link :to="`/books/${post.slug.current}`">
+          <img
+            v-if="post.cover && urlFor(post.cover)"
+            :src="urlFor(post.cover)?.width(550).height(310).url()"
+            :alt="post?.title"
+            class="aspect-video rounded-xl"
+            width="550"
+            height="310"
+          >
           <h2 class="text-xl font-semibold">{{ post.title }}</h2>
           <p>{{ new Date(post.publishedAt).toLocaleDateString() }}</p>
         </nuxt-link>
