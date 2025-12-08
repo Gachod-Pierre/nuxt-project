@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import type { SanityDocument } from '@sanity/client'
-import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url'
 
 const POST_QUERY = groq`*[_type == "book" && slug.current == $slug][0]`
 const { params } = useRoute()
 
 const { data: post } = await useLazySanityQuery<SanityDocument>(POST_QUERY, params)
-const { projectId, dataset } = useSanity().client.config()
-const urlFor = (source: SanityImageSource) =>
-  projectId && dataset
-    ? createImageUrlBuilder({ projectId, dataset }).image(source)
-    : null
+const { urlFor } = useSanityImageUrl()
 </script>
 
 <template>
@@ -20,8 +15,8 @@ const urlFor = (source: SanityImageSource) =>
   >
     <a href="/books" class="hover:underline">&larr; Back to posts</a>
     <img
-      v-if="post.cover && urlFor(post.cover)"
-      :src="urlFor(post.cover)?.width(550).height(310).url()"
+      v-if="post.cover"
+      :src="urlFor(post.cover, { width: 550, height: 310 }) ?? ''"
       :alt="post?.title"
       class="aspect-video rounded-xl"
       width="550"
