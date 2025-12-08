@@ -2,16 +2,34 @@
 import { ref } from 'vue'
 
 const isOpen = ref(false)
+const token = useCookie('my_token')
 
 function toggleMenu () {
   isOpen.value = !isOpen.value
 }
+
+const user = computed(() => {
+  if (!token.value) {
+    return null
+  }
+  
+  try {
+    // Décoder le JWT (la partie payload est la deuxième partie après le split)
+    const tokenValue = token.value
+    const payload = tokenValue && tokenValue.split('.')[1] ? JSON.parse(atob(tokenValue.split('.')[1] || '')) : null
+    return {
+      username: payload.username,
+      user_id: payload.user_id
+    }
+  } catch {
+    return null
+  }
+})
 </script>
 
 <template>
   <header class="header">
     <div class="header__container">
-
       <NuxtLink to="/" class="header__logo">
         <img src="/logo.png" alt="Logo">
       </NuxtLink>
@@ -23,8 +41,11 @@ function toggleMenu () {
       </nav>
 
       <div class="header__actions">
-        <NuxtLink to="/login" class="header__user">
-          <img src="/icons/user.png" alt="Mon compte">
+        <NuxtLink v-if="user" to="/dashboard" class="header__user">
+          Bonjour {{ user.username }}
+        </NuxtLink>
+        <NuxtLink v-else to="/login" class="header__user">
+          se connecter
         </NuxtLink>
       </div>
 
@@ -33,9 +54,7 @@ function toggleMenu () {
         <span :class="{ 'is-open': isOpen }"/>
         <span :class="{ 'is-open': isOpen }"/>
       </button>
-
     </div>
-
 
     <div class="header__mobile-menu" :class="{ 'is-open': isOpen }">
       <NuxtLink to="/" class="header__mobile-link" @click="toggleMenu">Accueil</NuxtLink>
@@ -104,10 +123,21 @@ function toggleMenu () {
   }
   }
 
-  &__user img {
-    width: 26px;
-    height: 26px;
-    cursor: pointer;
+  &__user {
+    color: black;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    
+    &:hover {
+      opacity: 0.7;
+    }
+    
+    img {
+      width: 26px;
+      height: 26px;
+      cursor: pointer;
+    }
   }
 
   &__burger {
