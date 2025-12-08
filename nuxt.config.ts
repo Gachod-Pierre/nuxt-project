@@ -15,6 +15,9 @@ export default defineNuxtConfig({
     }
   },
   vite: {
+    optimizeDeps: {
+      include: ['react-compiler-runtime', 'react', 'react-dom']
+    },
     css: {
       preprocessorOptions: {
         scss: {
@@ -27,5 +30,14 @@ export default defineNuxtConfig({
       }
     }
   },
-  modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/test-utils']
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/image',
+    '@nuxt/test-utils',
+    '@nuxtjs/sanity'
+  ],
+  sanity: {
+    projectId: 'hrwnx43k',
+    dataset: 'production'
+  }
 })
