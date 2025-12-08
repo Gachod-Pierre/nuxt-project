@@ -60,7 +60,12 @@ const user = computed(() => {
       <NuxtLink to="/" class="header__mobile-link" @click="toggleMenu">Accueil</NuxtLink>
       <NuxtLink to="/recipes" class="header__mobile-link" @click="toggleMenu">Recettes</NuxtLink>
       <NuxtLink to="/about" class="header__mobile-link" @click="toggleMenu">À propos</NuxtLink>
-      <NuxtLink to="/account" class="header__mobile-link" @click="toggleMenu">Mon compte</NuxtLink>
+      <NuxtLink v-if="user" to="/dashboard" class="header__user">
+        Bonjour {{ user.username }}
+      </NuxtLink>
+      <NuxtLink v-else to="/login" class="header__user">
+        se connecter
+      </NuxtLink>
     </div>
   </header>
 </template>
