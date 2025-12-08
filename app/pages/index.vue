@@ -3,6 +3,6 @@
 
 <template>
   <div>
-    <h1>HP</h1>
+    <MyTitle :level="1" size="xl">HomePage</MyTitle>
   </div>
 </template>

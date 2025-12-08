@@ -47,7 +47,7 @@ const model = defineModel({ type: String, default: '' })
   </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 .ui-input {
   /* Local color variables */
   --input-bg-color: #f9f9f9;
