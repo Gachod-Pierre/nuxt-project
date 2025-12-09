@@ -4,7 +4,7 @@ import type { SanityDocument } from '@sanity/client'
 const POSTS_QUERY = groq`*[
   _type == "book"
   && defined(slug.current)
-]|order(publishedAt desc)[0...12]{_id, title, slug, cover, publishedAt}`
+]|order(publishedAt desc)[0...12]{_id, title, slug, cover, publishedAt, author->{ name } }`
 
 const { data: posts } = await useLazySanityQuery<SanityDocument[]>(POSTS_QUERY)
 const { urlFor } = useSanityImageUrl()
@@ -26,6 +26,7 @@ const { urlFor } = useSanityImageUrl()
           >
           <h2 class="text-xl font-semibold">{{ post.title }}</h2>
           <p>{{ new Date(post.publishedAt).toLocaleDateString() }}</p>
+          <p>{{ post.author?.name }} salut</p>
         </nuxt-link>
       </li>
     </ul>
