@@ -3,7 +3,9 @@
 Pierre Gachod
 
 NUXT REPO : https://github.com/Gachod-Pierre/nuxt-project
+
 API REPO : https://github.com/Gachod-Pierre/API-Cuisine
+
 SANITY REPO : https://github.com/Gachod-Pierre/studio-recipes-site
 
 ## Convention de nommage
@@ -36,6 +38,11 @@ Ex : refactor(auth): improve token validation logic
 
 ➜ Annule un commit précédent.
 Ex : revert: revert feat(header)
+
+**6. docs**
+
+➜ Modification de la documentation uniquement.
+Ex : docs(readme): update install instructions
 ```
 
 # Nuxt Minimal Starter
