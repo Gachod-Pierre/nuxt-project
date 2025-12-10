@@ -1,32 +1,32 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed } from 'vue'
 
 const props = defineProps<{
-  size?: "giant" | "large" | "medium" | "small" | "tiny";
+  size?: 'giant' | 'large' | 'medium' | 'small' | 'tiny';
   disabled?: boolean;
   href?: string;
-  variant?: "default" | "outline";
-}>();
+  variant?: 'default' | 'outline';
+}>()
 
 const sizeClass = computed(() => {
   return {
-    giant: "-giant",
-    large: "-large",
-    medium: "-medium",
-    small: "-small",
-    tiny: "-tiny",
-  }[props.size ?? "medium"];
-});
+    giant: '-giant',
+    large: '-large',
+    medium: '-medium',
+    small: '-small',
+    tiny: '-tiny'
+  }[props.size ?? 'medium']
+})
 
 const variantClass = computed(() => {
-  return `-${props.variant ?? "default"}`;
-});
+  return `-${props.variant ?? 'default'}`
+})
 
-const emit = defineEmits(["clickAndHover"]);
+const emit = defineEmits(['clickAndHover'])
 
-function handleClickAndHover() {
-  if (props.disabled) return;
-  emit("clickAndHover");
+function handleClickAndHover () {
+  if (props.disabled) return
+  emit('clickAndHover')
 }
 </script>
 
