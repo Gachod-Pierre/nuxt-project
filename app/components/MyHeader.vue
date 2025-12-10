@@ -31,7 +31,7 @@ const user = computed(() => {
   <header class="header">
     <div class="header__container">
       <NuxtLink to="/" class="header__logo">
-        <img src="/logo.png" alt="Logo">
+        <img src="/logo.svg" alt="Logo">
       </NuxtLink>
 
       <nav class="header__nav">
@@ -41,12 +41,12 @@ const user = computed(() => {
       </nav>
 
       <div class="header__actions">
-        <NuxtLink v-if="user" to="/dashboard" class="header__user">
+        <NuxtLink v-if="user" to="/dashboard" class="header__link">
           Bonjour {{ user.username }}
         </NuxtLink>
-        <NuxtLink v-else to="/login" class="header__user">
+        <MyButton v-else href="/login">
           se connecter
-        </NuxtLink>
+        </MyButton>
       </div>
 
       <button class="header__burger" aria-label="Menu" @click="toggleMenu">
@@ -60,10 +60,10 @@ const user = computed(() => {
       <NuxtLink to="/" class="header__mobile-link" @click="toggleMenu">Accueil</NuxtLink>
       <NuxtLink to="/recipes" class="header__mobile-link" @click="toggleMenu">Recettes</NuxtLink>
       <NuxtLink to="/about" class="header__mobile-link" @click="toggleMenu">À propos</NuxtLink>
-      <NuxtLink v-if="user" to="/dashboard" class="header__user">
+      <NuxtLink v-if="user" to="/dashboard" class="header__mobile-link" @click="toggleMenu">
         Bonjour {{ user.username }}
       </NuxtLink>
-      <NuxtLink v-else to="/login" class="header__user">
+      <NuxtLink v-else to="/login" class="header__mobile-link" @click="toggleMenu">
         se connecter
       </NuxtLink>
     </div>
@@ -91,7 +91,7 @@ const user = computed(() => {
 
 
   &__logo img {
-    width: 50px;
+    width: 150px;
     height: auto;
     display: block;
   }
@@ -161,7 +161,7 @@ const user = computed(() => {
     span {
       width: 28px;
       height: 3px;
-      background: white;
+      background: black;
       border-radius: 5px;
       transition: 0.3s ease;
 

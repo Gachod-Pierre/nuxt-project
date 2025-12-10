@@ -55,6 +55,7 @@ function handleClickAndHover () {
   cursor: pointer;
   outline: none;
   border-radius: 8px;
+  text-decoration: none;
   transition:
     background-color 0.15s,
     transform 0.15s,
