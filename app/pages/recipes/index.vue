@@ -26,16 +26,6 @@ const perPage = 2
 const search = ref<string>('')
 const filters = ref<Cuisine['name'][]>([])
 
-function onCheckboxInput ($event: InputEvent) {
-  const target = $event.target
-  if (!(target instanceof HTMLInputElement)) return
-  filters.value = target.checked
-    ? [...filters.value, target.value]
-    : filters.value.filter((f: string) => f !== target.value)
-  // eslint-disable-next-line no-console
-  console.log(filters.value)
-}
-
 function onPageClick (n: number) {
   page.value = n
 }
@@ -81,30 +71,13 @@ const totalPages = computed(() => {
     <!-- FILTRES -->
     <div class="recipes-filters">
       <MySearchBar v-model="search" />
-      <h2 class="recipes-filters__title">Active filters: {{ filters }}</h2>
+      <MyFiltersPanel v-model="filters" :cuisines="cuisines" />
       <br >
       pages : {{ page }} / {{ totalPages }}
       <div class="pages">
         <span v-for="n in totalPages" :key="n" @click="onPageClick(n)">{{
           n
         }}</span>
-      </div>
-      <div
-        v-for="cuisine in cuisines"
-        :key="cuisine.cuisine_id"
-        class="recipes-filters__item"
-      >
-        <input
-          :id="`cuisine-${cuisine.name}`"
-          type="checkbox"
-          :value="cuisine.name"
-          class="recipes-filters__checkbox"
-          @input="onCheckboxInput"
-        >
-
-        <label :for="`cuisine-${cuisine.name}`" class="recipes-filters__label">
-          {{ cuisine.name }}
-        </label>
       </div>
     </div>
 
@@ -149,31 +122,7 @@ const totalPages = computed(() => {
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-
-  .recipes-filters__item {
-    display: flex;
-    flex-direction: row; // input + label en ligne → OK
-    align-items: center;
-    gap: 0.4rem;
-    margin-bottom: 0.6rem;
-  }
-
-  &__title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-  }
-
-  &__checkbox {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-  }
-
-  &__label {
-    cursor: pointer;
-    font-size: 0.95rem;
-  }
+  gap: 1rem;
 }
 
 /* ===========================
