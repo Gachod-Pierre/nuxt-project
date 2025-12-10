@@ -16,5 +16,6 @@ const { data } = await useLazySanityQuery<SanitySiteSettings>(query)
     <main class="layout-default__main">
       <slot />
     </main>
+    <my-footer v-if="data" v-bind="{ navigation: data.navigation, logo: data.logo }"/>
   </div>
 </template>
