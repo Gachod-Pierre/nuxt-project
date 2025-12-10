@@ -26,10 +26,6 @@ const perPage = 2
 const search = ref<string>('')
 const filters = ref<Cuisine['name'][]>([])
 
-function onPageClick (n: number) {
-  page.value = n
-}
-
 const filteredRecipes = computed<Recipe[]>(() => {
   if (!recipes.value) return []
 
@@ -72,13 +68,7 @@ const totalPages = computed(() => {
     <div class="recipes-filters">
       <MySearchBar v-model="search" />
       <MyFiltersPanel v-if="cuisines" v-model="filters" :cuisines="cuisines" />
-      <br >
-      pages : {{ page }} / {{ totalPages }}
-      <div class="pages">
-        <span v-for="n in totalPages" :key="n" @click="onPageClick(n)">{{
-          n
-        }}</span>
-      </div>
+      <MyPagination v-model="page" :total-pages="totalPages" />
     </div>
 
     <!-- GRID RECETTES -->
@@ -99,20 +89,6 @@ const totalPages = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-.pages {
-  span {
-    cursor: pointer;
-    margin-right: 0.5rem;
-    padding: 0.2rem 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-
-    &:hover {
-      background-color: #f0f0f0;
-    }
-  }
-}
-
 /* ===========================
    FILTRES
 =========================== */
