@@ -47,13 +47,13 @@ const filteredRecipes = computed<Recipe[]>(() => {
 
   if (search.value.trim().length > 0) {
     const keyword = search.value.toLowerCase().trim()
-    result = result.filter(recipe =>
+    result = result.filter((recipe) =>
       recipe.title.toLowerCase().includes(keyword)
     )
   }
 
   if (filters.value.length > 0) {
-    result = result.filter(recipe =>
+    result = result.filter((recipe) =>
       filters.value.includes(recipe.cuisine_name)
     )
   }
@@ -64,7 +64,6 @@ const filteredRecipes = computed<Recipe[]>(() => {
 watch([filters, search], () => {
   page.value = 1
 })
-
 
 const displayedRecipes = computed<Recipe[]>(() => {
   const start = (page.value - 1) * perPage
@@ -79,19 +78,22 @@ const totalPages = computed(() => {
 
 <template>
   <section class="recipes">
-
     <!-- FILTRES -->
     <div class="recipes-filters">
-      <input v-model="search" type="text">
-      <br>
+      <input v-model="search" type="text" >
+      <br >
       search : {{ search }}
       <h2 class="recipes-filters__title">Active filters: {{ filters }}</h2>
-      <br>
+      <br >
       pages : {{ page }} / {{ totalPages }}
-      <div class="pages"><span v-for="n in totalPages" :key="n" @click="onPageClick(n)">{{ n }}</span></div>
-      <div 
-        v-for="cuisine in cuisines" 
-        :key="cuisine.cuisine_id" 
+      <div class="pages">
+        <span v-for="n in totalPages" :key="n" @click="onPageClick(n)">{{
+          n
+        }}</span>
+      </div>
+      <div
+        v-for="cuisine in cuisines"
+        :key="cuisine.cuisine_id"
         class="recipes-filters__item"
       >
         <input
@@ -102,10 +104,7 @@ const totalPages = computed(() => {
           @input="onCheckboxInput"
         >
 
-        <label 
-          :for="`cuisine-${cuisine.name}`" 
-          class="recipes-filters__label"
-        >
+        <label :for="`cuisine-${cuisine.name}`" class="recipes-filters__label">
           {{ cuisine.name }}
         </label>
       </div>
@@ -116,38 +115,19 @@ const totalPages = computed(() => {
       <h2 class="recipes-grid__title">Liste des recettes</h2>
 
       <ul class="recipes-grid__list">
-        <li  
-          v-for="recipe in displayedRecipes" 
-          :key="recipe.recipe_id" 
+        <li
+          v-for="recipe in displayedRecipes"
+          :key="recipe.recipe_id"
           class="recipes-grid__item"
         >
-          <NuxtImg 
-            :src="`/recipes/${recipe.image_url}`" 
-            class="recipes-grid__image"
-            alt=""
-          />
-
-          <div class="recipes-grid__info">
-            <span class="recipes-grid__cuisine">
-              {{ recipe.cuisine_name }}
-            </span>
-            <NuxtLink
-              :to="`/recipes/${recipe.recipe_id}`"
-              class="recipes-grid__title-link"
-            >
-              {{ recipe.title }}
-            </NuxtLink>
-          </div>
+          <MyRecipesCard :recipe="recipe" />
         </li>
       </ul>
     </div>
-
   </section>
 </template>
 
-
 <style lang="scss" scoped>
-
 .pages {
   span {
     cursor: pointer;
@@ -162,7 +142,6 @@ const totalPages = computed(() => {
   }
 }
 
-
 /* ===========================
    FILTRES
 =========================== */
@@ -175,11 +154,11 @@ const totalPages = computed(() => {
 
   .recipes-filters__item {
     display: flex;
-    flex-direction: row;     // input + label en ligne → OK
+    flex-direction: row; // input + label en ligne → OK
     align-items: center;
     gap: 0.4rem;
     margin-bottom: 0.6rem;
-}
+  }
 
   &__title {
     font-size: 1.1rem;
@@ -229,41 +208,26 @@ const totalPages = computed(() => {
     flex-direction: column;
     gap: 0.5rem;
     // padding: 1rem;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s ease;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    transition: none;
 
     &:hover {
-      transform: translateY(-4px);
+      transform: none;
     }
   }
 
   &__image {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 8px;
+    display: none;
   }
 
   &__cuisine {
-    font-size: 0.85rem;
-    color: #666;
+    display: none;
   }
 
   &__title-link {
-    margin-top: auto;
-    font-size: 1.1rem;
-    font-weight: 600;
-    text-decoration: none;
-    color: #222;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: #0070f3;
-    }
+    display: none;
   }
 }
-
-
 </style>
