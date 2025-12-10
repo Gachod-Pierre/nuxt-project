@@ -62,7 +62,7 @@ const user = computed(() => {
         <NuxtLink v-if="user" to="/dashboard" class="header__link">
           Bonjour {{ user.username }}
         </NuxtLink>
-        <MyButton v-else :disabled="true" href="/login"> se connecter </MyButton>
+        <MyButton v-else :disabled="false" href="/login"> se connecter </MyButton>
       </div>
 
       <button class="header__burger" aria-label="Menu" @click="toggleMenu">
