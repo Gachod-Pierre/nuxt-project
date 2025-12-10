@@ -80,9 +80,7 @@ const totalPages = computed(() => {
   <section class="recipes">
     <!-- FILTRES -->
     <div class="recipes-filters">
-      <input v-model="search" type="text" >
-      <br >
-      search : {{ search }}
+      <MySearchBar v-model="search" />
       <h2 class="recipes-filters__title">Active filters: {{ filters }}</h2>
       <br >
       pages : {{ page }} / {{ totalPages }}
