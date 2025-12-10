@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import type { SanitySiteSettings } from '~/types/cms/siteSettings'
+
+defineProps<{
+  logo: SanitySiteSettings['logo'];
+  navigation: SanitySiteSettings['navigation'];
+}>()
+
+const { urlFor } = useSanityImageUrl()
 
 const isOpen = ref(false)
 const token = useCookie('my_token')
@@ -12,11 +19,13 @@ const user = computed(() => {
   if (!token.value) {
     return null
   }
-  
+
   try {
-    // Décoder le JWT (la partie payload est la deuxième partie après le split)
     const tokenValue = token.value
-    const payload = tokenValue && tokenValue.split('.')[1] ? JSON.parse(atob(tokenValue.split('.')[1] || '')) : null
+    const payload =
+      tokenValue && tokenValue.split('.')[1]
+        ? JSON.parse(atob(tokenValue.split('.')[1] || ''))
+        : null
     return {
       username: payload.username,
       user_id: payload.user_id
@@ -25,53 +34,86 @@ const user = computed(() => {
     return null
   }
 })
+
 </script>
 
 <template>
   <header class="header">
     <div class="header__container">
       <NuxtLink to="/" class="header__logo">
-        <img src="/logo.svg" alt="Logo">
+        <img v-if="logo" :src="urlFor(logo) || ''" alt="" >
       </NuxtLink>
 
       <nav class="header__nav">
-        <NuxtLink to="/" class="header__link">Accueil</NuxtLink>
-        <NuxtLink to="/recipes" class="header__link">Recettes</NuxtLink>
-        <NuxtLink to="/about" class="header__link">À propos</NuxtLink>
+        <ul class="header__nav-list">
+          <li
+            v-for="item in navigation"
+            :key="item.url"
+            class="header__nav-item"
+          >
+            <NuxtLink :to="item.url" class="header__nav-link">
+              {{ item.label }}
+            </NuxtLink>
+          </li>
+        </ul>
       </nav>
 
       <div class="header__actions">
         <NuxtLink v-if="user" to="/dashboard" class="header__link">
           Bonjour {{ user.username }}
         </NuxtLink>
-        <MyButton v-else href="/login">
-          se connecter
-        </MyButton>
+        <MyButton v-else :disabled="true" href="/login"> se connecter </MyButton>
       </div>
 
       <button class="header__burger" aria-label="Menu" @click="toggleMenu">
-        <span :class="{ 'is-open': isOpen }"/>
-        <span :class="{ 'is-open': isOpen }"/>
-        <span :class="{ 'is-open': isOpen }"/>
+        <span :class="{ 'is-open': isOpen }" />
+        <span :class="{ 'is-open': isOpen }" />
+        <span :class="{ 'is-open': isOpen }" />
       </button>
     </div>
 
     <div class="header__mobile-menu" :class="{ 'is-open': isOpen }">
-      <NuxtLink to="/" class="header__mobile-link" @click="toggleMenu">Accueil</NuxtLink>
-      <NuxtLink to="/recipes" class="header__mobile-link" @click="toggleMenu">Recettes</NuxtLink>
-      <NuxtLink to="/about" class="header__mobile-link" @click="toggleMenu">À propos</NuxtLink>
-      <NuxtLink v-if="user" to="/dashboard" class="header__mobile-link" @click="toggleMenu">
-        Bonjour {{ user.username }}
-      </NuxtLink>
-      <NuxtLink v-else to="/login" class="header__mobile-link" @click="toggleMenu">
-        se connecter
-      </NuxtLink>
+      <nav class="header__mobile-nav">
+        <ul class="header__mobile-list">
+          <li
+            v-for="item in navigation"
+            :key="item.url"
+            class="header__mobile-item"
+          >
+            <NuxtLink
+              :to="item.url"
+              class="header__mobile-link"
+              @click="toggleMenu"
+            >
+              {{ item.label }}
+            </NuxtLink>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header__mobile-actions">
+        <NuxtLink
+          v-if="user"
+          to="/dashboard"
+          class="header__mobile-link"
+          @click="toggleMenu"
+        >
+          Bonjour {{ user.username }}
+        </NuxtLink>
+        <NuxtLink
+          v-else
+          to="/login"
+          class="header__mobile-link"
+          @click="toggleMenu"
+        >
+          se connecter
+        </NuxtLink>
+      </div>
     </div>
   </header>
 </template>
 
 <style scoped lang="scss">
-
 .header {
   background: rgb(244, 244, 244);
   color: white;
@@ -89,21 +131,40 @@ const user = computed(() => {
     justify-content: space-between;
   }
 
-
   &__logo img {
     width: 150px;
     height: auto;
     display: block;
   }
 
-
   &__nav {
+    @include medium-down {
+      display: none;
+    }
+  }
+
+  &__nav-list {
     display: flex;
     gap: 2rem;
-
-    @include medium-down {
-    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
+
+  &__nav-item {
+    display: flex;
+    align-items: center;
+  }
+
+  &__nav-link {
+    color: black;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.7;
+    }
   }
 
   &__link {
@@ -111,12 +172,11 @@ const user = computed(() => {
     font-weight: 500;
     text-decoration: none;
     transition: opacity 0.2s;
-    
+
     &:hover {
       opacity: 0.7;
     }
   }
-
 
   &__actions {
     display: flex;
@@ -124,8 +184,8 @@ const user = computed(() => {
     gap: 1.2rem;
 
     @include medium-down {
-    display: none;
-  }
+      display: none;
+    }
   }
 
   &__user {
@@ -133,11 +193,11 @@ const user = computed(() => {
     font-weight: 500;
     text-decoration: none;
     transition: opacity 0.2s;
-    
+
     &:hover {
       opacity: 0.7;
     }
-    
+
     img {
       width: 26px;
       height: 26px;
@@ -190,9 +250,7 @@ const user = computed(() => {
     transform: translateY(-100%);
     opacity: 0;
     pointer-events: none;
-    transition:
-      opacity 0.3s ease,
-      transform 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 
     &.is-open {
       transform: translateY(0);
@@ -201,19 +259,52 @@ const user = computed(() => {
     }
   }
 
-  &__mobile-link {
-    color: white;
-    text-decoration: none;
-    font-size: 1.1rem;
-    padding: 0.8rem 0;
+  &__mobile-nav {
+    flex: 1;
+  }
+
+  &__mobile-list {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+  }
+
+  &__mobile-item {
+    display: flex;
+    align-items: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
     &:last-child {
       border-bottom: none;
     }
+  }
+
+  &__mobile-link {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1rem;
+    padding: 0.8rem 0;
+    width: 100%;
+    transition: opacity 0.2s;
 
     &:hover {
       opacity: 0.7;
+    }
+  }
+
+  &__mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    .header__mobile-link {
+      padding: 0.8rem 0;
+      border-bottom: none;
     }
   }
 }
