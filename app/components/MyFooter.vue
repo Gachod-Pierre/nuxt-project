@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { SanitySiteSettings } from "~/types/cms/siteSettings";
+import type { SanitySiteSettings } from '~/types/cms/siteSettings'
 
 defineProps<{
-  logo: SanitySiteSettings["logo"];
-  navigation: SanitySiteSettings["navigation"];
-}>();
+  logo: SanitySiteSettings['logo'];
+  navigation: SanitySiteSettings['navigation'];
+}>()
 
-const { urlFor } = useSanityImageUrl();
+const { urlFor } = useSanityImageUrl()
 </script>
 
 <template>
@@ -19,7 +19,7 @@ const { urlFor } = useSanityImageUrl();
           :src="urlFor(logo) || ''"
           alt=""
           class="footer__logo-image"
-        />
+        >
       </div>
 
       <!-- Navigation Section -->
