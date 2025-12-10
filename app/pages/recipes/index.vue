@@ -71,7 +71,7 @@ const totalPages = computed(() => {
     <!-- FILTRES -->
     <div class="recipes-filters">
       <MySearchBar v-model="search" />
-      <MyFiltersPanel v-model="filters" :cuisines="cuisines" />
+      <MyFiltersPanel v-if="cuisines" v-model="filters" :cuisines="cuisines" />
       <br >
       pages : {{ page }} / {{ totalPages }}
       <div class="pages">
