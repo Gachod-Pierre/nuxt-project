@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const config = useRuntimeConfig()
+const token = useCookie('my_token')
 
 const { data: recipe } = await useAsyncData(
   `recipe-${route.params.id}`,
@@ -17,6 +18,55 @@ if (!recipe.value) {
     statusCode: 404,
     statusMessage: 'Recette non trouvée'
   })
+}
+
+// Récupérer les données utilisateur
+const { data: user } = await useAsyncData('current-user', async () => {
+  if (!token.value) {
+    return null
+  }
+
+  try {
+    const response = await $fetch<ApiResponse<User>>(
+      `${config.public.apiUrl}/users/profile`,
+      {
+        headers: {
+          Authorization: `Bearer ${token.value}`
+        }
+      }
+    )
+    return response.data
+  } catch {
+    return null
+  }
+})
+
+const isOwner = computed(() => {
+  return (
+    user.value && recipe.value && user.value.user_id === recipe.value.user_id
+  )
+})
+
+const isDeleting = ref(false)
+
+async function deleteRecipe () {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer cette recette ?')) return
+
+  try {
+    isDeleting.value = true
+    await $fetch(`${config.public.apiUrl}/recipes/${route.params.id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token.value}`
+      }
+    })
+    navigateTo('/dashboard')
+  } catch (error) {
+    console.error('Erreur lors de la suppression:', error)
+    alert('Erreur lors de la suppression de la recette')
+  } finally {
+    isDeleting.value = false
+  }
 }
 </script>
 
@@ -35,9 +85,21 @@ if (!recipe.value) {
       <!-- CONTENU -->
       <div class="recipe-detail__content">
         <div class="recipe-detail__header">
-          <MyTitle :level="1" size="xl" weight="bold">
-            {{ recipe.title }}
-          </MyTitle>
+          <div class="recipe-detail__title-row">
+            <MyTitle :level="1" size="xl" weight="bold">
+              {{ recipe.title }}
+            </MyTitle>
+            <!-- Bouton suppression si propriétaire -->
+            <MyButton
+              v-if="isOwner"
+              :disabled="isDeleting"
+              variant="delete"
+              size="small"
+              @click="deleteRecipe"
+            >
+              {{ isDeleting ? "Suppression..." : "Supprimer" }}
+            </MyButton>
+          </div>
 
           <span class="recipe-detail__cuisine-badge">
             {{ recipe.cuisine_name }}
@@ -203,6 +265,18 @@ if (!recipe.value) {
     gap: 1rem;
   }
 
+  &__title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    justify-content: space-between;
+
+    @include medium-down {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
   &__cuisine-badge {
     display: inline-block;
     padding: 0.6rem 1.2rem;
@@ -300,9 +374,6 @@ if (!recipe.value) {
     text-transform: uppercase;
   }
 
-  /* ===========================
-     DÉTAILS (Ingrédients & Instructions)
-  =========================== */
   &__details {
     max-width: 1200px;
     margin: 0 auto;
@@ -326,9 +397,6 @@ if (!recipe.value) {
     margin-bottom: 0.5rem;
   }
 
-  /* ===========================
-     INGRÉDIENTS
-  =========================== */
   &__ingredients-list {
     display: flex;
     flex-direction: column;
@@ -371,9 +439,6 @@ if (!recipe.value) {
     font-weight: 500;
   }
 
-  /* ===========================
-     INSTRUCTIONS
-  =========================== */
   &__instructions-list {
     display: flex;
     flex-direction: column;
