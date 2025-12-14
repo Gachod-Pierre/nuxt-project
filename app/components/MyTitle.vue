@@ -1,10 +1,10 @@
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
-    level?: 1 | 2 | 3 | 4 | 5 | 6
-    size?: 'xl' | 'lg' | 'md' | 'sm'
-    weight?: 'bold' | 'semibold' | 'medium' | 'regular'
-    color?: 'default' | 'primary' | 'muted'
+    level?: 1 | 2 | 3 | 4 | 5 | 6;
+    size?: 'xl' | 'lg' | 'md' | 'sm';
+    weight?: 'bold' | 'semibold' | 'medium' | 'regular';
+    color?: 'default' | 'primary' | 'muted';
   }>(),
   {
     level: 1,
@@ -14,17 +14,17 @@ const props = withDefaults(
   }
 )
 
-const Tag = `h${props.level}` as const
+const headingTag = computed(() => `h${props.level}`)
 </script>
 
 <template>
   <component
-    :is="Tag"
+    :is="headingTag"
     :class="[
       'ui-title',
       `ui-title--${props.size}`,
       `ui-title--${props.weight}`,
-      `ui-title--${props.color}`
+      `ui-title--${props.color}`,
     ]"
   >
     <slot />
