@@ -73,7 +73,9 @@ const totalPages = computed(() => {
 
     <!-- GRID RECETTES -->
     <div class="recipes-grid">
-      <h2 class="recipes-grid__title">Liste des recettes</h2>
+      <MyTitle :level="2" size="lg" weight="bold" class="recipes-grid__title">
+        Liste des recettes
+      </MyTitle>
 
       <ul class="recipes-grid__list">
         <li
@@ -93,6 +95,7 @@ const totalPages = computed(() => {
    FILTRES
 =========================== */
 .recipes-filters {
+  margin-top: 2rem;
   margin-bottom: 2rem;
   padding: 1rem;
   border-radius: 8px;
@@ -105,16 +108,11 @@ const totalPages = computed(() => {
    GRID DE RECETTES
 =========================== */
 .recipes-grid {
-  &__info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    padding: 1rem;
-  }
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border-radius: 8px;
 
   &__title {
-    font-size: 1.3rem;
-    font-weight: 700;
     margin-bottom: 1.5rem;
   }
 
@@ -128,29 +126,6 @@ const totalPages = computed(() => {
 
   &__item {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    // padding: 1rem;
-    background: transparent;
-    border-radius: 0;
-    box-shadow: none;
-    transition: none;
-
-    &:hover {
-      transform: none;
-    }
-  }
-
-  &__image {
-    display: none;
-  }
-
-  &__cuisine {
-    display: none;
-  }
-
-  &__title-link {
-    display: none;
   }
 }
 </style>
