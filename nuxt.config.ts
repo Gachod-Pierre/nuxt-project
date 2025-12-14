@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiUrl: ''
+      apiUrl: 'http://localhost:4000'
     }
   },
   vite: {
