@@ -62,6 +62,7 @@ async function deleteRecipe () {
     })
     navigateTo('/dashboard')
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Erreur lors de la suppression:', error)
     alert('Erreur lors de la suppression de la recette')
   } finally {
