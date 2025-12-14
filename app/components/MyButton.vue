@@ -5,7 +5,7 @@ const props = defineProps<{
   size?: 'giant' | 'large' | 'medium' | 'small' | 'tiny';
   disabled?: boolean;
   href?: string;
-  variant?: 'default' | 'outline';
+  variant?: 'default' | 'outline' | 'delete';
 }>()
 
 const sizeClass = computed(() => {
@@ -142,6 +142,24 @@ function handleClickAndHover () {
     --btn-bg-press: rgba(61, 79, 255, 0.2);
     --btn-border-press: #3d4fff;
     --btn-color-press: #3d4fff;
+
+    --btn-bg-disabled: transparent;
+    --btn-border-disabled: #e5e7ea;
+    --btn-color-disabled: #b5b5b5;
+  }
+
+  &.-delete {
+    --btn-bg: transparent;
+    --btn-border: #dc2626;
+    --btn-color: #dc2626;
+
+    --btn-bg-hover: rgba(220, 38, 38, 0.1);
+    --btn-border-hover: #dc2626;
+    --btn-color-hover: #dc2626;
+
+    --btn-bg-press: rgba(220, 38, 38, 0.2);
+    --btn-border-press: #dc2626;
+    --btn-color-press: #dc2626;
 
     --btn-bg-disabled: transparent;
     --btn-border-disabled: #e5e7ea;
