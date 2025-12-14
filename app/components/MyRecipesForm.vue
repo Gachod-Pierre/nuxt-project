@@ -72,10 +72,12 @@ const fieldErrors = computed(() => ({
 }))
 
 const isFormValid = computed(() => {
-  return !fieldErrors.value.title &&
-         !fieldErrors.value.description &&
-         !fieldErrors.value.cuisine &&
-         !fieldErrors.value.goal
+  return (
+    !fieldErrors.value.title &&
+    !fieldErrors.value.description &&
+    !fieldErrors.value.cuisine &&
+    !fieldErrors.value.goal
+  )
 })
 
 /* ========================
@@ -112,8 +114,9 @@ async function handleSubmit () {
     successMessage.value = 'Recette créée avec succès !'
     resetForm()
 
-    navigateTo('/')
-
+    setTimeout(() => {
+      location.reload()
+    }, 1500)
   } catch (error: unknown) {
     const err = error as FetchError<{ message?: string }>
     errorMessage.value = err.data?.message || 'Erreur lors de la création'
@@ -135,10 +138,9 @@ function resetForm () {
 
 <template>
   <section class="recipes-form">
-    <h2 class="recipes-form__title">Créer une recette</h2>
+    <MyTitle :level="2" size="lg" weight="bold">Créer une recette</MyTitle>
 
     <form class="recipes-form__form" @submit.prevent="handleSubmit">
-
       <!-- Titre -->
       <div class="recipes-form__group">
         <MyInput
@@ -200,11 +202,7 @@ function resetForm () {
           required
         >
           <option disabled value="">Sélectionner un objectif</option>
-          <option
-            v-for="g in goals"
-            :key="g.goal_id"
-            :value="g.goal_id"
-          >
+          <option v-for="g in goals" :key="g.goal_id" :value="g.goal_id">
             {{ g.name }}
           </option>
         </select>
@@ -215,11 +213,7 @@ function resetForm () {
         <label class="recipes-form__label">Régime</label>
         <select v-model="dietId" class="recipes-form__select">
           <option value="">Aucun</option>
-          <option 
-            v-for="d in diets"
-            :key="d.diet_id"
-            :value="d.diet_id"
-          >
+          <option v-for="d in diets" :key="d.diet_id" :value="d.diet_id">
             {{ d.name }}
           </option>
         </select>
@@ -230,7 +224,7 @@ function resetForm () {
         <label class="recipes-form__label">Allergie</label>
         <select v-model="allergyId" class="recipes-form__select">
           <option value="">Aucune</option>
-          <option 
+          <option
             v-for="a in allergies"
             :key="a.allergy_id"
             :value="a.allergy_id"
@@ -246,21 +240,20 @@ function resetForm () {
         :disabled="loading || !isFormValid"
         size="medium"
       >
-        {{ loading ? 'Création...' : 'Créer la recette' }}
+        {{ loading ? "Création..." : "Créer la recette" }}
       </MyButton>
-
     </form>
 
-    <p v-if="successMessage" class="recipes-form__success">{{ successMessage }}</p>
+    <p v-if="successMessage" class="recipes-form__success">
+      {{ successMessage }}
+    </p>
     <p v-if="errorMessage" class="recipes-form__error">{{ errorMessage }}</p>
-
   </section>
 </template>
 
 <style scoped lang="scss">
 .recipes-form {
   max-width: 600px;
-  margin: auto;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
