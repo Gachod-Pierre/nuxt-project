@@ -4,6 +4,10 @@ type Recipe = {
   title: string;
   description: string;
   image_url: string;
+  cuisine_id?: number;
+  goal_id?: number;
+  diet_id?: number;
+  allergy_id?: number;
   cuisine_name: Cuisine['name'];
   goal_name: string;
   diet_name: string;
