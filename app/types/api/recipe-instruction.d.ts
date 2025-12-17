@@ -1,0 +1,3 @@
+type RecipeInstruction = {
+  description: string;
+}
