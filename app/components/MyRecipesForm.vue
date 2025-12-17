@@ -1,88 +1,66 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import type { FetchError } from 'ofetch'
+import { useRecipeFormValidation } from '~/composables/useRecipeFormValidation'
+import { useRecipeFormSubmit } from '~/composables/useRecipeFormSubmit'
 
 const config = useRuntimeConfig()
 const token = useCookie('my_token')
 
-/* ========================
-   FORM STATE
-======================== */
+const {
+  title,
+  description,
+  imageUrl,
+  cuisineId,
+  goalId,
+  dietId,
+  allergyId,
+  recipeIngredients,
+  recipeInstructions,
+  fieldErrors,
+  isFormValid,
+  validateIngredients,
+  resetForm
+} = useRecipeFormValidation()
 
-const title = ref('')
-const description = ref('')
-const imageUrl = ref('')
-const cuisineId = ref<number | null>(null)
-const goalId = ref<number | null>(null)
-const dietId = ref<number | null>(null)
-const allergyId = ref<number | null>(null)
-
-const loading = ref(false)
-const successMessage = ref('')
-const errorMessage = ref('')
-
-/* ========================
-   API DATA
-======================== */
+const {
+  loading,
+  successMessage,
+  errorMessage,
+  handleSubmit: submitForm
+} = useRecipeFormSubmit()
 
 const [
   { data: cuisines },
   { data: goals },
   { data: diets },
-  { data: allergies }
+  { data: allergies },
+  { data: ingredients }
 ] = await Promise.all([
-  useAsyncData('cuisines', async () => {
-    const { data } = await $fetch<ApiResponse<Cuisine[]>>(
-      `${config.public.apiUrl}/cuisines`
+  useAsyncData('cuisines', () =>
+    $fetch<ApiResponse<Cuisine[]>>(`${config.public.apiUrl}/cuisines`).then(
+      (r) => r.data
     )
-    return data
-  }),
-
-  useAsyncData('goals', async () => {
-    const { data } = await $fetch<ApiResponse<Goal[]>>(
-      `${config.public.apiUrl}/goals`
+  ),
+  useAsyncData('goals', () =>
+    $fetch<ApiResponse<Goal[]>>(`${config.public.apiUrl}/goals`).then(
+      (r) => r.data
     )
-    return data
-  }),
-
-  useAsyncData('dietaryInformation', async () => {
-    const { data } = await $fetch<ApiResponse<Diet[]>>(
+  ),
+  useAsyncData('dietaryInformation', () =>
+    $fetch<ApiResponse<Diet[]>>(
       `${config.public.apiUrl}/dietaryInformations`
-    )
-    return data
-  }),
-
-  useAsyncData('allergiesInformation', async () => {
-    const { data } = await $fetch<ApiResponse<Allergy[]>>(
+    ).then((r) => r.data)
+  ),
+  useAsyncData('allergiesInformation', () =>
+    $fetch<ApiResponse<Allergy[]>>(
       `${config.public.apiUrl}/allergiesInformations`
-    )
-    return data
-  })
-])
-
-/* ========================
-   VALIDATION
-======================== */
-
-const fieldErrors = computed(() => ({
-  title: !title.value,
-  description: !description.value,
-  cuisine: !cuisineId.value,
-  goal: !goalId.value
-}))
-
-const isFormValid = computed(() => {
-  return (
-    !fieldErrors.value.title &&
-    !fieldErrors.value.description &&
-    !fieldErrors.value.cuisine &&
-    !fieldErrors.value.goal
+    ).then((r) => r.data)
+  ),
+  useAsyncData('ingredients', () =>
+    $fetch<ApiResponse<Ingredient[]>>(
+      `${config.public.apiUrl}/ingredients`
+    ).then((r) => r.data)
   )
-})
-
-/* ========================
-   SUBMIT FORM
-======================== */
+])
 
 async function handleSubmit () {
   if (!isFormValid.value) {
@@ -90,49 +68,28 @@ async function handleSubmit () {
     return
   }
 
-  loading.value = true
-  successMessage.value = ''
-  errorMessage.value = ''
-
-  try {
-    await $fetch(`${config.public.apiUrl}/recipes`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      },
-      body: {
-        title: title.value,
-        description: description.value,
-        image_url: imageUrl.value,
-        cuisine_id: cuisineId.value,
-        goal_id: goalId.value,
-        DietaryInformation_id: dietId.value,
-        AllergiesInformation_id: allergyId.value
-      }
-    })
-
-    successMessage.value = 'Recette créée avec succès !'
-    resetForm()
-
-    setTimeout(() => {
-      location.reload()
-    }, 1500)
-  } catch (error: unknown) {
-    const err = error as FetchError<{ message?: string }>
-    errorMessage.value = err.data?.message || 'Erreur lors de la création'
-  } finally {
-    loading.value = false
+  const ingredientError = validateIngredients()
+  if (ingredientError) {
+    errorMessage.value = ingredientError
+    return
   }
-}
 
-function resetForm () {
-  title.value = ''
-  description.value = ''
-  imageUrl.value = ''
-  cuisineId.value = null
-  goalId.value = null
-  dietId.value = null
-  allergyId.value = null
+  await submitForm(
+    config,
+    token,
+    {
+      title: title.value,
+      description: description.value,
+      imageUrl: imageUrl.value,
+      cuisineId: cuisineId.value,
+      goalId: goalId.value,
+      dietId: dietId.value,
+      allergyId: allergyId.value,
+      ingredients: recipeIngredients.value,
+      instructions: recipeInstructions.value
+    },
+    resetForm
+  )
 }
 </script>
 
@@ -141,7 +98,6 @@ function resetForm () {
     <MyTitle :level="2" size="lg" weight="bold">Créer une recette</MyTitle>
 
     <form class="recipes-form__form" @submit.prevent="handleSubmit">
-      <!-- Titre -->
       <div class="recipes-form__group">
         <MyInput
           v-model="title"
@@ -152,7 +108,6 @@ function resetForm () {
         />
       </div>
 
-      <!-- Description -->
       <div class="recipes-form__group">
         <MyInput
           v-model="description"
@@ -163,7 +118,6 @@ function resetForm () {
         />
       </div>
 
-      <!-- Image -->
       <div class="recipes-form__group">
         <MyInput
           v-model="imageUrl"
@@ -172,7 +126,6 @@ function resetForm () {
         />
       </div>
 
-      <!-- Cuisine -->
       <div class="recipes-form__group">
         <label class="recipes-form__label">Cuisine *</label>
         <select
@@ -192,7 +145,6 @@ function resetForm () {
         </select>
       </div>
 
-      <!-- Objectif -->
       <div class="recipes-form__group">
         <label class="recipes-form__label">Objectif *</label>
         <select
@@ -208,7 +160,6 @@ function resetForm () {
         </select>
       </div>
 
-      <!-- Régime -->
       <div class="recipes-form__group">
         <label class="recipes-form__label">Régime</label>
         <select v-model="dietId" class="recipes-form__select">
@@ -219,7 +170,6 @@ function resetForm () {
         </select>
       </div>
 
-      <!-- Allergies -->
       <div class="recipes-form__group">
         <label class="recipes-form__label">Allergie</label>
         <select v-model="allergyId" class="recipes-form__select">
@@ -234,7 +184,18 @@ function resetForm () {
         </select>
       </div>
 
-      <!-- Submit -->
+      <MyRecipesIngredientsPanel
+        v-model="recipeIngredients"
+        :ingredients="ingredients"
+        @error="(msg: string) => (errorMessage = msg)"
+        @success="(msg: string) => (successMessage = msg)"
+      />
+
+      <MyRecipesInstructionsPanel
+        v-model="recipeInstructions"
+        @error="(msg: string) => (errorMessage = msg)"
+      />
+
       <MyButton
         class="recipes-form__button"
         :disabled="loading || !isFormValid"
@@ -257,11 +218,6 @@ function resetForm () {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-
-  &__title {
-    font-size: 1.8rem;
-    font-weight: 700;
-  }
 
   &__form {
     display: flex;
