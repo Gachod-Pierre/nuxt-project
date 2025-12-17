@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useRecipeFormValidation } from '~/composables/useRecipeFormValidation'
+import { useRecipeFormEdit } from '~/composables/useRecipeFormEdit'
+
 const route = useRoute()
 const config = useRuntimeConfig()
 const token = useCookie('my_token')
@@ -20,7 +23,6 @@ if (!recipe.value) {
   })
 }
 
-// Récupérer les données utilisateur
 const { data: user } = await useAsyncData('current-user', async () => {
   if (!token.value) {
     return null
@@ -48,6 +50,140 @@ const isOwner = computed(() => {
 })
 
 const isDeleting = ref(false)
+const isEditing = ref(false)
+
+// Form state for editing
+const {
+  title,
+  description,
+  imageUrl,
+  cuisineId,
+  goalId,
+  dietId,
+  allergyId,
+  recipeIngredients,
+  recipeInstructions,
+  isFormValid,
+  validateIngredients
+} = useRecipeFormValidation()
+
+const {
+  loading: editLoading,
+  successMessage: editSuccess,
+  errorMessage: editError,
+  handleEdit
+} = useRecipeFormEdit()
+
+const { data: cuisines } = await useAsyncData('cuisines', () =>
+  $fetch<ApiResponse<Cuisine[]>>(`${config.public.apiUrl}/cuisines`).then(
+    (r) => r.data
+  )
+)
+
+const { data: goals } = await useAsyncData('goals', () =>
+  $fetch<ApiResponse<Goal[]>>(`${config.public.apiUrl}/goals`).then(
+    (r) => r.data
+  )
+)
+
+const { data: diets } = await useAsyncData('dietaryInformation', () =>
+  $fetch<ApiResponse<Diet[]>>(
+    `${config.public.apiUrl}/dietaryInformations`
+  ).then((r) => r.data)
+)
+
+const { data: allergies } = await useAsyncData('allergiesInformation', () =>
+  $fetch<ApiResponse<Allergy[]>>(
+    `${config.public.apiUrl}/allergiesInformations`
+  ).then((r) => r.data)
+)
+
+const { data: ingredients } = await useAsyncData('ingredients', () =>
+  $fetch<ApiResponse<Ingredient[]>>(`${config.public.apiUrl}/ingredients`).then(
+    (r) => r.data
+  )
+)
+
+// Initialize form with recipe data
+function initEditForm () {
+  title.value = recipe.value?.title || ''
+  description.value = recipe.value?.description || ''
+  imageUrl.value = recipe.value?.image_url || ''
+  cuisineId.value = (recipe.value as FullRecipe)?.cuisine_id || null
+  goalId.value = (recipe.value as FullRecipe)?.goal_id || null
+  dietId.value = (recipe.value as FullRecipe)?.diet_id || null
+  allergyId.value = (recipe.value as FullRecipe)?.allergy_id || null
+
+  recipeIngredients.value = (recipe.value?.ingredients || []).map(
+    (ing: RecipeIngredients) => ({
+      ingredientId: ing.ingredient_id,
+      ingredientName: ing.name,
+      quantity: ing.quantity.toString(),
+      unit: ing.unit
+    })
+  )
+
+  recipeInstructions.value = (recipe.value?.instructions || []).map(
+    (instr: RecipeInstructions) => ({
+      description: instr.description,
+      instruction_id: instr.instruction_id,
+      step_number: instr.step_number
+    })
+  )
+}
+
+async function submitEdit () {
+  if (!isFormValid.value) {
+    editError.value = 'Veuillez remplir tous les champs obligatoires.'
+    return
+  }
+
+  const ingredientError = validateIngredients()
+  if (ingredientError) {
+    editError.value = ingredientError
+    return
+  }
+
+  await handleEdit(
+    Number(route.params.id),
+    config,
+    token,
+    {
+      title: title.value,
+      description: description.value,
+      imageUrl: imageUrl.value,
+      cuisineId: cuisineId.value,
+      goalId: goalId.value,
+      dietId: dietId.value,
+      allergyId: allergyId.value,
+      ingredients: recipeIngredients.value,
+      instructions: recipeInstructions.value
+    },
+    (recipe.value?.ingredients || []).map((ing: RecipeIngredients) => ({
+      ingredientId: ing.ingredient_id,
+      ingredientName: ing.name,
+      quantity: ing.quantity.toString(),
+      unit: ing.unit
+    })),
+    (recipe.value?.instructions || []).map((instr: RecipeInstructions) => ({
+      description: instr.description,
+      instruction_id: instr.instruction_id,
+      step_number: instr.step_number
+    }))
+  )
+}
+
+function handleEditError (msg: string) {
+  editError.value = msg
+}
+
+function handleEditSuccess (msg: string) {
+  editSuccess.value = msg
+}
+
+function handleEditInstructionsError (msg: string) {
+  editError.value = msg
+}
 
 async function deleteRecipe () {
   if (!confirm('Êtes-vous sûr de vouloir supprimer cette recette ?')) return
@@ -73,6 +209,147 @@ async function deleteRecipe () {
 
 <template>
   <section v-if="recipe" class="recipe-detail">
+    <!-- MODAL ÉDITION -->
+    <div
+      v-if="isEditing && isOwner"
+      class="recipe-detail__modal-overlay"
+      @click="isEditing = false"
+    >
+      <div class="recipe-detail__modal" @click.stop>
+        <button class="recipe-detail__modal-close" @click="isEditing = false">
+          ✕
+        </button>
+
+        <h2 class="recipe-detail__modal-title">Modifier la recette</h2>
+
+        <form class="recipe-detail__edit-form" @submit.prevent="submitEdit">
+          <div class="recipe-detail__form-group">
+            <label class="recipe-detail__form-label">Titre *</label>
+            <input
+              v-model="title"
+              type="text"
+              class="recipe-detail__form-input"
+              required
+            >
+          </div>
+
+          <div class="recipe-detail__form-group">
+            <label class="recipe-detail__form-label">Description *</label>
+            <textarea
+              v-model="description"
+              class="recipe-detail__form-textarea"
+              required
+            />
+          </div>
+
+          <div class="recipe-detail__form-group">
+            <label class="recipe-detail__form-label">Image URL</label>
+            <input
+              v-model="imageUrl"
+              type="text"
+              class="recipe-detail__form-input"
+            >
+          </div>
+
+          <div class="recipe-detail__form-group">
+            <label class="recipe-detail__form-label">Cuisine *</label>
+            <select
+              v-model="cuisineId"
+              class="recipe-detail__form-select"
+              required
+            >
+              <option disabled value="">Sélectionner une cuisine</option>
+              <option
+                v-for="c in cuisines"
+                :key="c.cuisine_id"
+                :value="c.cuisine_id"
+              >
+                {{ c.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="recipe-detail__form-group">
+            <label class="recipe-detail__form-label">Objectif *</label>
+            <select
+              v-model="goalId"
+              class="recipe-detail__form-select"
+              required
+            >
+              <option disabled value="">Sélectionner un objectif</option>
+              <option v-for="g in goals" :key="g.goal_id" :value="g.goal_id">
+                {{ g.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="recipe-detail__form-group">
+            <label class="recipe-detail__form-label">Régime</label>
+            <select v-model="dietId" class="recipe-detail__form-select">
+              <option value="">Aucun</option>
+              <option v-for="d in diets" :key="d.diet_id" :value="d.diet_id">
+                {{ d.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="recipe-detail__form-group">
+            <label class="recipe-detail__form-label">Allergie</label>
+            <select v-model="allergyId" class="recipe-detail__form-select">
+              <option value="">Aucune</option>
+              <option
+                v-for="a in allergies"
+                :key="a.allergy_id"
+                :value="a.allergy_id"
+              >
+                {{ a.name }}
+              </option>
+            </select>
+          </div>
+
+          <MyRecipesIngredientsPanel
+            v-model="recipeIngredients"
+            :ingredients="ingredients"
+            @error="handleEditError"
+            @success="handleEditSuccess"
+          />
+
+          <MyRecipesInstructionsPanel
+            v-model="recipeInstructions"
+            @error="handleEditInstructionsError"
+          />
+
+          <div class="recipe-detail__form-actions">
+            <button
+              type="submit"
+              class="recipe-detail__form-btn recipe-detail__form-btn--submit"
+              :disabled="editLoading"
+            >
+              {{
+                editLoading
+                  ? "Modification..."
+                  : "Enregistrer les modifications"
+              }}
+            </button>
+            <button
+              type="button"
+              class="recipe-detail__form-btn recipe-detail__form-btn--cancel"
+              @click="isEditing = false"
+            >
+              Annuler
+            </button>
+          </div>
+
+          <p v-if="editSuccess" class="recipe-detail__form-success">
+            {{ editSuccess }}
+          </p>
+          <p v-if="editError" class="recipe-detail__form-error">
+            {{ editError }}
+          </p>
+        </form>
+      </div>
+    </div>
+
     <div class="recipe-detail__container">
       <!-- IMAGE -->
       <div class="recipe-detail__image-wrapper">
@@ -90,16 +367,28 @@ async function deleteRecipe () {
             <MyTitle :level="1" size="xl" weight="bold">
               {{ recipe.title }}
             </MyTitle>
-            <!-- Bouton suppression si propriétaire -->
-            <MyButton
-              v-if="isOwner"
-              :disabled="isDeleting"
-              variant="delete"
-              size="small"
-              @click="deleteRecipe"
-            >
-              {{ isDeleting ? "Suppression..." : "Supprimer" }}
-            </MyButton>
+            <!-- Boutons si propriétaire -->
+            <div v-if="isOwner" class="recipe-detail__actions">
+              <MyButton
+                size="small"
+                @click="
+                  () => {
+                    initEditForm();
+                    isEditing = true;
+                  }
+                "
+              >
+                Modifier
+              </MyButton>
+              <MyButton
+                :disabled="isDeleting"
+                variant="delete"
+                size="small"
+                @click="deleteRecipe"
+              >
+                {{ isDeleting ? "Suppression..." : "Supprimer" }}
+              </MyButton>
+            </div>
           </div>
 
           <span class="recipe-detail__cuisine-badge">
@@ -222,6 +511,149 @@ async function deleteRecipe () {
   padding: 2rem 1rem;
   min-height: 100vh;
 
+  &__modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+  }
+
+  &__modal {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  &__modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #000;
+    }
+  }
+
+  &__modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #222;
+  }
+
+  &__edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  &__form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__form-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+  }
+
+  &__form-input,
+  &__form-textarea,
+  &__form-select {
+    padding: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: white;
+
+    &:focus {
+      outline: none;
+      border-color: #0070f3;
+      box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.1);
+    }
+  }
+
+  &__form-textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  &__form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  &__form-btn {
+    flex: 1;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &--submit {
+      background: #10b981;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background-color: #059669;
+      }
+
+      &:disabled {
+        background-color: #d1d5db;
+        cursor: not-allowed;
+      }
+    }
+
+    &--cancel {
+      background: #e5e7eb;
+      color: #333;
+
+      &:hover {
+        background-color: #d1d5db;
+      }
+    }
+  }
+
+  &__form-success {
+    color: #059669;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 1rem;
+  }
+
+  &__form-error {
+    color: #dc2626;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 1rem;
+  }
+
   &__container {
     display: flex;
     gap: 3rem;
@@ -276,6 +708,12 @@ async function deleteRecipe () {
       flex-direction: column;
       align-items: flex-start;
     }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
   }
 
   &__cuisine-badge {
